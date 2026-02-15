@@ -50,7 +50,7 @@ if uploaded_filabel_encoder_obj is not None:
     # -------------------------------
     # Target & Feature Processing
     # -------------------------------
-    y = upload_df["num"].apply(lambda x: 1 if x > 0 else 0)
+    y = uploaded_df["num"].apply(lambda x: 1 if x > 0 else 0)
     feature_matrix = uploaded_df.drop("num", axis=1)
     feature_matrix = X.drop(["id", "dataset"], axis=1)
 
