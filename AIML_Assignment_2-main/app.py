@@ -42,7 +42,7 @@ uploaded_filabel_encoder_obj = st.file_uploader(
 # MAIN LOGIC
 # -------------------------------
 if uploaded_filabel_encoder_obj is not None:
-    uploaded_df = pd.read_csv(uploaded_file)
+    uploaded_df = pd.read_csv(uploaded_filabel_encoder_obj)
 
     st.subheader("Uploaded Dataset Preview")
     st.dataframe(uploaded_df.head())
