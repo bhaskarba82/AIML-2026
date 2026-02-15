@@ -26,47 +26,47 @@ import matplotlib.pyplot as plt
 # -------------------------------
 # Streamlit UI
 # -------------------------------
-st.set_page_config(page_title="AIML Assignment 2", layout="wide")
+st.set_page_config(page_title="ML Assignment 2", layout="wide")
 
-st.title("AIML Assignment 2 – Classification Models")
+st.title("ML Assignment 2 – Classification Models")
 st.write("Heart Disease Prediction using Multiple Classification Models")
 
 # -------------------------------
 # FILE UPLOAD (DEFINE FIRST!)
 # -------------------------------
-uploaded_filabel_encoder_obj = st.file_uploader(
+uploaded_file = st.file_uploader(
     "Upload Test Dataset (CSV)", type=["csv"]
 )
 
 # -------------------------------
 # MAIN LOGIC
 # -------------------------------
-if uploaded_filabel_encoder_obj is not None:
-    uploaded_df = pd.read_csv(uploaded_filabel_encoder_obj)
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
 
     st.subheader("Uploaded Dataset Preview")
-    st.dataframe(uploaded_df.head())
+    st.dataframe(df.head())
 
     # -------------------------------
     # Target & Feature Processing
     # -------------------------------
-    y = uploaded_df["num"].apply(lambda x: 1 if x > 0 else 0)
-    feature_matrix = uploaded_df.drop("num", axis=1)
-    feature_matrix = X.drop(["id", "dataset"], axis=1)
+    y = df["num"].apply(lambda x: 1 if x > 0 else 0)
+    X = df.drop("num", axis=1)
+    X = X.drop(["id", "dataset"], axis=1)
 
     # Encode categorical columns
-    categorical_columns = X.select_dtypes(include=["object"]).columns
-    for col in categorical_columns:
-        label_encoder_obj = LabelEncoder()
-        feature_matrix[col] = label_encoder_obj.fit_transform(feature_matrix[col])
+    cat_cols = X.select_dtypes(include=["object"]).columns
+    for col in cat_cols:
+        le = LabelEncoder()
+        X[col] = le.fit_transform(X[col])
 
     # Handle missing values
-    median_imputer = SimpleImputer(strategy="median")
-    feature_matrix = imputer.fit_transform(X)
+    imputer = SimpleImputer(strategy="median")
+    X = imputer.fit_transform(X)
 
     # Scale features
-    feature_scaler = StandardScaler()
-    feature_matrix = scaler.fit_transform(X)
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
 
     # -------------------------------
     # Model Selection
@@ -87,24 +87,24 @@ if uploaded_filabel_encoder_obj is not None:
     # Initialize Model
     # -------------------------------
     if model_name == "Logistic Regression":
-        selected_model = LogisticRegression(max_iter=1000)
+        model = LogisticRegression(max_iter=1000)
     elif model_name == "Decision Tree":
-        selected_model = DecisionTreeClassifier(random_state=42)
+        model = DecisionTreeClassifier(random_state=42)
     elif model_name == "KNN":
-        selected_model = KNeighborsClassifier(n_neighbors=5)
+        model = KNeighborsClassifier(n_neighbors=5)
     elif model_name == "Naive Bayes":
-        selected_model = GaussianNB()
+        model = GaussianNB()
     elif model_name == "Random Forest":
-        selected_model = RandomForestClassifier(n_estimators=100, random_state=42)
+        model = RandomForestClassifier(n_estimators=100, random_state=42)
     else:
-        selected_model = XGBClassifier(eval_metric="logloss", random_state=42)
+        model = XGBClassifier(eval_metric="logloss", random_state=42)
 
     # -------------------------------
     # Train & Predict
     # -------------------------------
-    selected_model.fit(feature_matrix, target_values)
-    predicted_labels = selected_model.predict(X)
-    predicted_probabilities = selected_model.predict_proba(X)[:, 1]
+    model.fit(X, y)
+    y_pred = model.predict(X)
+    y_proba = model.predict_proba(X)[:, 1]
 
     # -------------------------------
     # Metrics
@@ -112,25 +112,25 @@ if uploaded_filabel_encoder_obj is not None:
     st.subheader("Evaluation Metrics")
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Accuracy", round(accuracy_score(target_values, predicted_labels), 3))
-    col2.metric("Precision", round(precision_score(target_values, predicted_labels), 3))
-    col3.metric("Recall", round(recall_score(target_values, predicted_labels), 3))
+    col1.metric("Accuracy", round(accuracy_score(y, y_pred), 3))
+    col2.metric("Precision", round(precision_score(y, y_pred), 3))
+    col3.metric("Recall", round(recall_score(y, y_pred), 3))
 
     col4, col5, col6 = st.columns(3)
-    col4.metric("F1 Score", round(f1_score(target_values, predicted_labels), 3))
-    col5.metric("AUC", round(roc_auc_score(target_values, predicted_probabilities), 3))
-    col6.metric("MCC", round(matthews_corrcoef(target_values, predicted_labels), 3))
+    col4.metric("F1 Score", round(f1_score(y, y_pred), 3))
+    col5.metric("AUC", round(roc_auc_score(y, y_proba), 3))
+    col6.metric("MCC", round(matthews_corrcoef(y, y_pred), 3))
 
     # -------------------------------
     # Confusion Matrix
     # -------------------------------
     st.subheader("Confusion Matrix")
 
-    conf_matrix = confusion_matrix(target_values, predicted_labels)
+    cm = confusion_matrix(y, y_pred)
 
     fig, ax = plt.subplots(figsize=(4, 3))
     sns.heatmap(
-        conf_matrix,
+        cm,
         annot=True,
         fmt="d",
         cmap="Blues",
