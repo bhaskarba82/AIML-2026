@@ -77,7 +77,7 @@ The interactive web application provides:
 ## Folder Structure
 
 AIML_Assignment_2/ ├── app.py ├── AIML_Assignment_Notebook.ipynb ├──
-requirements.txt ├── README.md └── data/ └── heHeart_patietns.csv
+requirements.txt ├── README.md └── data/ └── Heart_patietns.csv
 
 ------------------------------------------------------------------------
 
